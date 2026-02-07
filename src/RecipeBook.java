@@ -45,13 +45,7 @@ public class RecipeBook {
         if (recipeName == null) {
             return false;
         }
-        return recipes.removeIf(r -> {
-            try {
-                return getRecipeName(r).equals(recipeName);
-            } catch (ReflectiveOperationException e) {
-                return false;
-            }
-        });
+        return recipes.removeIf(r -> r.getName().equals(recipeName));
     }
 
     /**
@@ -76,29 +70,36 @@ public class RecipeBook {
     }
 
     /**
+     * Removes all recipes from this recipe book.
+     */
+    public void clear() {
+        recipes.clear();
+    }
+
+    /**
      * Searches for recipes whose name contains the specified query string.
      *
      * <p>The search is case-insensitive and matches partial names.
+     * Leading and trailing whitespace in the query is ignored.
      *
      * @param query the search string
-     * @return a list of recipes matching the query, in insertion order
+     * @return a new list of recipes matching the query, in insertion order
      */
     public List<Recipe> searchByName(String query) {
-        if (query == null || query.isEmpty()) {
+        if (query == null) {
+            return new ArrayList<>();
+        }
+        String trimmed = query.trim();
+        if (trimmed.isEmpty()) {
             return new ArrayList<>();
         }
         
-        String lowerQuery = query.toLowerCase();
+        String lowerQuery = trimmed.toLowerCase();
         List<Recipe> results = new ArrayList<>();
         
         for (Recipe r : recipes) {
-            try {
-                String recipeName = getRecipeName(r);
-                if (recipeName.toLowerCase().contains(lowerQuery)) {
-                    results.add(r);
-                }
-            } catch (ReflectiveOperationException e) {
-                // Skip recipes we can't access
+            if (r.getName().toLowerCase().contains(lowerQuery)) {
+                results.add(r);
             }
         }
         
@@ -106,12 +107,95 @@ public class RecipeBook {
     }
 
     /**
-     * Helper method to get recipe name using reflection.
-     * This is needed because Recipe's name field is private.
+     * Searches for recipes that contain an ingredient whose name matches the query.
+     *
+     * <p>The search is case-insensitive and matches partial ingredient names.
+     * Leading and trailing whitespace in the query is ignored.
+     * This operation is read-only and does not modify recipes or ingredients.
+     *
+     * @param query the search string
+     * @return a new list of recipes matching the query, in insertion order
      */
-    private String getRecipeName(Recipe recipe) throws ReflectiveOperationException {
-        java.lang.reflect.Field nameField = Recipe.class.getDeclaredField("name");
-        nameField.setAccessible(true);
-        return (String) nameField.get(recipe);
+    public List<Recipe> searchByIngredient(String query) {
+        if (query == null) {
+            return new ArrayList<>();
+        }
+        String trimmed = query.trim();
+        if (trimmed.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        String lowerQuery = trimmed.toLowerCase();
+        List<Recipe> results = new ArrayList<>();
+        
+        for (Recipe r : recipes) {
+            for (String iname : r.getIngredientNames()) {
+                if (iname.toLowerCase().contains(lowerQuery)) {
+                    results.add(r);
+                    break;
+                }
+            }
+        }
+        
+        return results;
+    }
+
+    /**
+     * Searches for recipes where all tokens in the query match somewhere in the recipe.
+     *
+     * <p>A multi-token query like "garlic oil" is split into tokens. A recipe matches
+     * if every token matches (case-insensitive, partial) in either the recipe name
+     * or any ingredient name. Leading/trailing whitespace in the query is ignored.
+     * This operation is read-only and returns a new list.
+     *
+     * @param query the search string (may contain multiple space-separated tokens)
+     * @return a new list of recipes matching all tokens, in insertion order
+     */
+    public List<Recipe> search(String query) {
+        if (query == null) {
+            return new ArrayList<>();
+        }
+        String trimmed = query.trim();
+        if (trimmed.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        String[] tokens = trimmed.split("\\s+");
+        if (tokens.length == 0) {
+            return new ArrayList<>();
+        }
+        
+        List<Recipe> results = new ArrayList<>();
+        for (Recipe r : recipes) {
+            if (matchesAllTokens(r, tokens)) {
+                results.add(r);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Checks if a recipe matches all search tokens (in name or ingredients).
+     */
+    private boolean matchesAllTokens(Recipe r, String[] tokens) {
+        String recipeName = r.getName().toLowerCase();
+            List<String> ingredientNames = r.getIngredientNames();
+            
+            for (String token : tokens) {
+                String lowerToken = token.toLowerCase();
+                boolean tokenMatches = recipeName.contains(lowerToken);
+                if (!tokenMatches) {
+                    for (String iname : ingredientNames) {
+                        if (iname.toLowerCase().contains(lowerToken)) {
+                            tokenMatches = true;
+                            break;
+                        }
+                    }
+                }
+                if (!tokenMatches) {
+                    return false;
+                }
+            }
+            return true;
     }
 }

@@ -28,15 +28,15 @@
 - [x] Added comprehensive tests (test/IngredientTest.java, test/RecipeBookTest.java)
 - [x] All Stage 2 acceptance criteria met
 
-### Stage 3: Searching and Sorting (IN PROGRESS)
+### Stage 3: Searching and Sorting (COMPLETE)
 - [x] Implemented case-insensitive name search in `RecipeBook`
 - [x] Created `RecipeSorter` utility (`src/RecipeSorter.java`) for sorting recipes by name
 - [x] Added tests (test/RecipeSorterTest.java)
-- [x] Created `Stage2Demo.java` to demonstrate functionality
-- [ ] Implement ingredient-based search (find recipes by ingredient name; case-insensitive, partial match)
-- [ ] Implement multi-token search (queries like `garlic oil` — all tokens must match somewhere in recipe name or ingredient names)
-- [ ] Add stable secondary sort key for deterministic ordering when names compare equal ignoring case
-- [ ] Ensure search operations return a new list and never mutate stored recipes
+- [x] Created `Stage2Demo.java` and `Stage3Demo.java` to demonstrate functionality
+- [x] Implement ingredient-based search (`searchByIngredient`)
+- [x] Implement multi-token search (`search`)
+- [x] Add stable secondary sort key for deterministic ordering
+- [x] Ensure search operations return a new list and never mutate stored recipes
 
 ### Documentation Updates
 - [x] Updated docs/STAGES.md to reflect progress on Stages 1, 2, and 3
@@ -44,33 +44,33 @@
 
 ## Next Steps (Future Stages)
 
-### Stage 4: Shopping Cart Aggregation
-- [ ] Implement ingredient aggregation across multiple recipes
-- [ ] Handle ingredient normalization (case-insensitive matching)
-- [ ] Sum amounts for matching ingredients
-- [ ] Apply formatting rules to aggregated amounts
+### Stage 4: Shopping Cart Aggregation (COMPLETE)
+- [x] Implement ingredient aggregation across multiple recipes (`ShoppingCart.aggregate`)
+- [x] Handle ingredient normalization (case-insensitive matching)
+- [x] Sum amounts for matching ingredients
+- [x] Apply formatting rules to aggregated amounts
 
-### Stage 5: Persistence (JSON I/O)
-- [ ] Implement JSON writer for recipe lists
-- [ ] Implement JSON reader for recipe lists
-- [ ] Preserve recipe and ingredient order
-- [ ] Validate loaded data
-- [ ] Handle errors gracefully
+### Stage 5: Persistence (JSON I/O) (COMPLETE)
+- [x] Implement JSON writer for recipe lists (`RecipeJsonStore.save`)
+- [x] Implement JSON reader for recipe lists (`RecipeJsonStore.load`)
+- [x] Preserve recipe and ingredient order
+- [x] Validate loaded data (per DATA_MODEL Validation Policy)
+- [x] Handle errors gracefully (IOException with descriptive messages)
 
-### Stage 6: User Interface Integration
-- [ ] Create console-based UI
-- [ ] Commands for listing, searching, viewing recipes
-- [ ] Shopping cart generation
-- [ ] Load/save functionality
+### Stage 6: User Interface Integration (COMPLETE)
+- [x] Create console-based UI (`ConsoleUI`)
+- [x] Commands for listing, searching, viewing recipes
+- [x] Shopping cart generation
+- [x] Load/save functionality
 
-### Stage 7: Refinement and Extension
-- [ ] Optional: Refactor Recipe to use Ingredient class instead of parallel lists
-- [ ] Improved error messages
-- [ ] Additional search options
-- [ ] Code quality improvements
+### Stage 7: Refinement and Extension (COMPLETE)
+- [x] Refactored Recipe to use Ingredient class (List<Ingredient>)
+- [x] Improved error messages in addIngredient
+- [x] RecipeTest updated to use public APIs (no reflection)
+- [x] Code quality: aligned Recipe with DATA_MODEL (ingredients as List<Ingredient>)
 
 ## Notes
-- Recipe class continues to use parallel lists for Day-1 simplicity
+- Recipe class now uses List<Ingredient> per DATA_MODEL
 - Ingredient class is available for future refactoring if needed
 - All existing functionality remains working and tested
 - Stage 2 scaffolding complete with RecipeBook, Ingredient, and search/sort utilities
